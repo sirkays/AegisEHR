@@ -1,0 +1,34 @@
+databases:
+  - name: aegisehr-db
+    databaseName: aegisehr
+    user: aegis_user
+    plan: free
+    region: oregon
+
+services:
+  - type: web
+    name: aegisehr
+    runtime: python
+    region: oregon
+    plan: free
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn ehr_portal.wsgi:application"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: aegisehr-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: PYTHON_VERSION
+        value: "3.11.9"
+      - key: ALGORAND_NETWORK
+        value: "testnet"
+      - key: ALGORAND_ALGOD_ADDRESS
+        value: "https://testnet-api.algonode.cloud"
+      - key: ALGORAND_INDEXER_ADDRESS
+        value: "https://testnet-idx.algonode.cloud"
+      - key: ALGORAND_APP_ID
+        value: "100200300"

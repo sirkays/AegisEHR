@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AegisEHR - Decentralised Electronic Health Record Framework{% endblock %}</title>
+    <!-- Latest Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                            800: '#115e59',
+                            900: '#134e4a',
+                        },
+                        algo: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'Fira Code', 'Courier New', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="h-full flex flex-col text-slate-800 antialiased selection:bg-teal-500 selection:text-white">
+
+    <!-- Top Infrastructure Bar -->
+    <header class="bg-slate-900 text-slate-300 text-xs px-4 py-1.5 border-b border-slate-800">
+        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center space-x-3">
+                <span class="flex items-center gap-1.5 font-medium">
+                    <span class="relative flex h-2 w-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                    Algorand Network: <strong class="text-emerald-400 uppercase tracking-wide">TestNet</strong>
+                </span>
+                <span class="hidden md:inline text-slate-600">|</span>
+                <span class="hidden md:inline text-slate-400">Smart Contract App ID: <span class="font-mono text-slate-200">100200300</span></span>
+                <span class="hidden md:inline text-slate-600">|</span>
+                <span class="hidden md:inline text-slate-400">Consensus: <span class="text-slate-200">Pure Proof-of-Stake</span></span>
+            </div>
+            <div class="flex items-center space-x-4">
+                <span class="flex items-center gap-1 text-slate-400">
+                    <svg class="w-3.5 h-3.5 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                    AES-256-GCM + IPFS Encrypted
+                </span>
+                <a href="{% url 'audit_history' %}" class="hover:text-white underline underline-offset-2 transition-colors">Ledger Audit Trail</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Navigation -->
+    <nav class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center space-x-8">
+                    <!-- Logo -->
+                    <a href="{% url 'home' %}" class="flex items-center space-x-2.5">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-700 via-teal-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-teal-500/20">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                        </div>
+                        <div>
+                            <span class="text-xl font-extrabold tracking-tight text-slate-900">Aegis<span class="text-brand-600">EHR</span></span>
+                            <span class="hidden sm:block text-[10px] uppercase tracking-wider font-semibold text-slate-400">Algorand Decentralised Healthcare</span>
+                        </div>
+                    </a>
+
+                    <!-- Portal Navigation Links -->
+                    {% if user.is_authenticated %}
+                        <div class="hidden md:flex items-center space-x-1">
+                            <a href="{% url 'dashboard_redirect' %}" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:text-brand-600 hover:bg-slate-50 transition">Dashboard</a>
+                            
+                            {% if user.is_patient_user %}
+                                <a href="{% url 'patient_dashboard' %}" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:text-brand-600 hover:bg-slate-50 transition">My Health Records</a>
+                                <a href="{% url 'consent_management' %}" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:text-brand-600 hover:bg-slate-50 transition flex items-center gap-1.5">
+                                    Consent Center
+                                    <span class="bg-teal-100 text-teal-800 text-xs px-2 py-0.5 rounded-full font-semibold">Active</span>
+                                </a>
+                            {% elif user.is_provider_user %}
+                                <a href="{% url 'provider_dashboard' %}" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:text-brand-600 hover:bg-slate-50 transition">Clinical Workspace</a>
+                                <a href="{% url 'upload_record' %}" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:text-brand-600 hover:bg-slate-50 transition flex items-center gap-1">
+                                    <svg class="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                    Upload & Anchor EHR
+                                </a>
+                            {% elif user.is_admin_user %}
+                                <a href="{% url 'admin_verification' %}" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:text-brand-600 hover:bg-slate-50 transition">Provider Verification</a>
+                            {% endif %}
+                            
+                            <a href="{% url 'audit_history' %}" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:text-brand-600 hover:bg-slate-50 transition">Audit Ledger</a>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Right Side User & Wallet Controls -->
+                <div class="flex items-center space-x-3">
+                    {% if user.is_authenticated %}
+                        <!-- Algorand Address Pill -->
+                        {% if user.algorand_address %}
+                            <div class="hidden lg:flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 border border-slate-300/80 px-2.5 py-1 rounded-full text-xs font-mono text-slate-700 transition" title="Algorand Public Address: {{ user.algorand_address }}">
+                                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                <span class="font-semibold text-slate-500">ALGO:</span>
+                                <span>{{ user.algorand_address|slice:":6" }}...{{ user.algorand_address|slice:"-4:" }}</span>
+                            </div>
+                        {% endif %}
+
+                        <!-- Role Badge -->
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold
+                            {% if user.is_patient_user %}bg-blue-100 text-blue-800
+                            {% elif user.is_provider_user %}bg-emerald-100 text-emerald-800
+                            {% else %}bg-purple-100 text-purple-800{% endif %}">
+                            {% if user.is_patient_user %}Patient
+                            {% elif user.is_provider_user %}Practitioner
+                            {% else %}Admin Auditor{% endif %}
+                        </span>
+
+                        <!-- User Profile Menu -->
+                        <div class="flex items-center space-x-2 pl-2 border-l border-slate-200">
+                            <span class="text-sm font-medium text-slate-800 hidden sm:inline">{{ user.get_full_name|default:user.username }}</span>
+                            <a href="{% url 'logout' %}" class="text-xs font-medium text-rose-600 hover:text-rose-800 bg-rose-50 hover:bg-rose-100 px-2.5 py-1.5 rounded-lg transition">
+                                Logout
+                            </a>
+                        </div>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="text-sm font-medium text-slate-700 hover:text-brand-600 px-3 py-2 rounded-lg transition">Sign In</a>
+                        <a href="{% url 'register' %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-semibold rounded-xl text-white bg-brand-600 hover:bg-brand-700 shadow-sm transition">
+                            Create Account
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Toast Notifications / Flash Messages -->
+    {% if messages %}
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 space-y-2">
+            {% for message in messages %}
+                <div class="flex items-center justify-between p-4 rounded-xl border text-sm shadow-sm
+                    {% if message.tags == 'success' %}bg-emerald-50 border-emerald-200 text-emerald-900
+                    {% elif message.tags == 'error' %}bg-rose-50 border-rose-200 text-rose-900
+                    {% elif message.tags == 'warning' %}bg-amber-50 border-amber-200 text-amber-900
+                    {% else %}bg-sky-50 border-sky-200 text-sky-900{% endif %}">
+                    <div class="flex items-center space-x-3">
+                        {% if message.tags == 'success' %}
+                            <svg class="w-5 h-5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        {% elif message.tags == 'error' %}
+                            <svg class="w-5 h-5 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                        {% elif message.tags == 'warning' %}
+                            <svg class="w-5 h-5 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                        {% else %}
+                            <svg class="w-5 h-5 text-sky-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        {% endif %}
+                        <p class="font-medium">{{ message }}</p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Main Body Content -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 mt-auto py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+                <div class="flex items-center space-x-2">
+                    <span class="font-bold text-slate-700">AegisEHR Architecture</span>
+                    <span>•</span>
+                    <span>Algorand Smart Contract Layer</span>
+                    <span>•</span>
+                    <span>IPFS Content Addressing</span>
+                    <span>•</span>
+                    <span>AES-256-GCM Cryptographic Envelope</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span>Dissertation Chapters 1–5 Implementation</span>
+                    <a href="{% url 'home' %}" class="hover:text-brand-600">Home</a>
+                    <a href="{% url 'audit_history' %}" class="hover:text-brand-600">Verification Ledger</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+
+{% block title %}Audit History & Transaction Verification - AegisEHR{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <!-- Figure Header Pill -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-2 border-b border-slate-200">
+        <div>
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-medium bg-slate-200/80 text-slate-700 border border-slate-300 mb-2">
+                <svg class="w-3.5 h-3.5 text-indigo-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path></svg>
+                Figure 4.11: Audit History and Transaction Verification Page
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Audit Trail & Transaction Verification</h1>
+            <p class="text-sm text-slate-500">Immutable ledger accountability distinguishing confirmed on-chain Algorand events from off-chain application logs.</p>
+        </div>
+        <div class="flex items-center gap-2">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 text-white font-mono text-xs shadow-sm">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                Algorand Pure PoS Synced
+            </span>
+        </div>
+    </div>
+
+    <!-- KPI Metric Summary Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Recorded Events</span>
+            <div class="flex items-baseline justify-between mt-2">
+                <span class="text-3xl font-extrabold text-slate-900">{{ total_events_count }}</span>
+                <span class="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-semibold">Indexed</span>
+            </div>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Confirmed On-Chain</span>
+            <div class="flex items-baseline justify-between mt-2">
+                <span class="text-3xl font-extrabold text-emerald-600">{{ on_chain_count }}</span>
+                <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-semibold">Algorand Ledger</span>
+            </div>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Restricted Off-Chain Logs</span>
+            <div class="flex items-baseline justify-between mt-2">
+                <span class="text-3xl font-extrabold text-slate-700">{{ off_chain_count }}</span>
+                <span class="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-semibold">Internal Audit</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter & Search Controls -->
+    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+        <form method="get" action="{% url 'audit_history' %}" class="grid grid-cols-1 md:grid-cols-4 gap-3">
+            <div>
+                <label for="event_type" class="block text-xs font-semibold text-slate-700 mb-1">Filter by Event Category</label>
+                <select id="event_type" name="event_type" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white">
+                    <option value="">All Event Categories</option>
+                    {% for val, label in event_types %}
+                        <option value="{{ val }}" {% if selected_event_type == val %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label for="chain_filter" class="block text-xs font-semibold text-slate-700 mb-1">Evidential Class</label>
+                <select id="chain_filter" name="chain_filter" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white">
+                    <option value="">All Evidential Classes</option>
+                    <option value="on_chain" {% if chain_filter == 'on_chain' %}selected{% endif %}>Confirmed On-Chain (Algorand Ledger)</option>
+                    <option value="off_chain" {% if chain_filter == 'off_chain' %}selected{% endif %}>Restricted Off-Chain Application Events</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="q" class="block text-xs font-semibold text-slate-700 mb-1">Keyword Search</label>
+                <input type="text" id="q" name="q" value="{{ search_query }}" placeholder="Filter description or address..."
+                       class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs">
+            </div>
+
+            <div class="flex items-end gap-2">
+                <button type="submit" class="flex-1 py-2 px-3 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs shadow-sm transition">
+                    Filter Logs
+                </button>
+                <a href="{% url 'audit_history' %}" class="py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition">
+                    Reset
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Audit Event Log Table -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-slate-200 flex items-center justify-between">
+            <div>
+                <h3 class="text-lg font-bold text-slate-900">System & Consensus Audit Records</h3>
+                <p class="text-xs text-slate-500">Every authorization, consent change, and record upload generates cryptographic trace evidence</p>
+            </div>
+            <span class="text-xs font-mono font-medium text-slate-500">
+                Displaying {{ events.count }} events
+            </span>
+        </div>
+
+        {% if events %}
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-slate-600">
+                    <thead class="bg-slate-50 text-xs uppercase font-semibold text-slate-500 border-b border-slate-200">
+                        <tr>
+                            <th class="px-6 py-3.5">Timestamp (UTC)</th>
+                            <th class="px-6 py-3.5">Event Description</th>
+                            <th class="px-6 py-3.5">Actor & Address</th>
+                            <th class="px-6 py-3.5">Evidential Status</th>
+                            <th class="px-6 py-3.5 text-right">Blockchain Tx Reference</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200 text-xs">
+                        {% for ev in events %}
+                            <tr class="hover:bg-slate-50/80 transition">
+                                <td class="px-6 py-4 font-mono text-slate-500 whitespace-nowrap">
+                                    {{ ev.timestamp|date:"Y-m-d H:i:s" }}
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="font-bold text-slate-900">{{ ev.get_event_type_display }}</div>
+                                    <div class="text-slate-500 text-[11px] mt-0.5">{{ ev.description }}</div>
+                                    {% if ev.record %}
+                                        <div class="text-[10px] text-teal-700 font-mono mt-0.5">Record: {{ ev.record.title }} (v{{ ev.record.version }})</div>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="font-semibold text-slate-800">
+                                        {{ ev.actor.get_full_name|default:ev.actor.username|default:"System Engine" }}
+                                    </div>
+                                    {% if ev.actor_address %}
+                                        <div class="font-mono text-[10px] text-slate-400 select-all" title="{{ ev.actor_address }}">
+                                            {{ ev.actor_address|slice:":8" }}...{{ ev.actor_address|slice:"-6:" }}
+                                        </div>
+                                    {% else %}
+                                        <div class="text-[10px] text-slate-400">IP: {{ ev.ip_address|default:"127.0.0.1" }}</div>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    {% if ev.is_on_chain %}
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                            Confirmed On-Chain
+                                        </span>
+                                    {% else %}
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full font-semibold text-slate-700 bg-slate-100 border border-slate-200">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                                            Restricted Off-Chain
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4 text-right whitespace-nowrap font-mono">
+                                    {% if ev.algorand_tx_id %}
+                                        <div>
+                                            <a href="https://testnet.explorer.perawallet.app/tx/{{ ev.algorand_tx_id }}" target="_blank" rel="noopener noreferrer" class="text-teal-600 hover:text-teal-800 font-bold hover:underline inline-flex items-center space-x-1" title="View Tx on Algorand TestNet Explorer">
+                                                <span>{{ ev.algorand_tx_id|slice:":10" }}...{{ ev.algorand_tx_id|slice:"-6:" }}</span>
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                                            </a>
+                                        </div>
+                                        <div class="text-[10px] text-slate-400">Round #{{ ev.confirmation_round }}</div>
+                                    {% else %}
+                                        <span class="text-slate-400">—</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="p-8 text-center text-xs text-slate-400">
+                No audit events matching current filter criteria.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

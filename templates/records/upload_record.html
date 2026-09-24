@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+
+{% block title %}EHR Upload & Blockchain Registration - AegisEHR{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto space-y-8">
+    <!-- Figure Header Pill -->
+    <div class="text-center pb-2 border-b border-slate-200">
+        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-medium bg-slate-200/80 text-slate-700 border border-slate-300 mb-2">
+            <svg class="w-3.5 h-3.5 text-teal-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l5-5a1 1 0 011.414 0l5 5a1 1 0 01-1.414 1.414L13 3.414V13a1 1 0 11-2 0V3.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+            Figure 4.8: EHR Upload and Blockchain Registration Page
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Secure EHR Upload & Blockchain Anchoring</h1>
+        <p class="text-xs sm:text-sm text-slate-500 mt-1">Multi-stage cryptographic packaging: AES-256-GCM encryption &bull; IPFS CID &bull; Algorand Smart Contract</p>
+    </div>
+
+    <!-- 3-Stage Progress Tracker -->
+    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4 text-center">Cryptographic Lifecycle Stages</h3>
+        <div class="grid grid-cols-3 gap-2 text-center text-xs">
+            <div class="p-3 rounded-xl bg-teal-50 border border-teal-200 text-teal-900">
+                <span class="block font-bold">1. AES-256-GCM</span>
+                <span class="text-[11px] text-teal-700">Fresh Nonce & Tag</span>
+            </div>
+            <div class="p-3 rounded-xl bg-teal-50 border border-teal-200 text-teal-900">
+                <span class="block font-bold">2. IPFS Storage</span>
+                <span class="text-[11px] text-teal-700">Content ID (CID)</span>
+            </div>
+            <div class="p-3 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-900">
+                <span class="block font-bold">3. Algorand Ledger</span>
+                <span class="text-[11px] text-indigo-700">Tx Confirmation</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Mode: Confirmed Receipt Card -->
+    {% if success_mode %}
+        <div class="bg-white rounded-2xl border-2 border-emerald-500 shadow-md p-6 sm:p-8 space-y-6">
+            <div class="flex items-center space-x-4">
+                <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                </div>
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-emerald-600">Blockchain Anchoring Verified</span>
+                    <h2 class="text-xl font-bold text-slate-900">EHR Package Committed to Algorand Ledger</h2>
+                </div>
+            </div>
+
+            <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 space-y-3 font-mono text-xs">
+                <div class="flex justify-between py-1 border-b border-slate-200/80">
+                    <span class="text-slate-500 font-sans font-medium">Record Identifier:</span>
+                    <span class="text-slate-900 font-bold select-all">{{ recent_record.record_id }}</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-slate-200/80">
+                    <span class="text-slate-500 font-sans font-medium">Record Version:</span>
+                    <span class="text-slate-900 font-bold">v{{ recent_record.version }}</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-slate-200/80">
+                    <span class="text-slate-500 font-sans font-medium">IPFS Content Identifier (CID):</span>
+                    <span class="text-teal-700 font-bold select-all">{{ package.ipfs_cid }}</span>
+                </div>
+                <div class="flex flex-col py-1 border-b border-slate-200/80">
+                    <span class="text-slate-500 font-sans font-medium mb-1">SHA-256 Complete Package Digest:</span>
+                    <span class="text-slate-800 break-all select-all">{{ package.package_digest }}</span>
+                </div>
+                <div class="flex flex-col py-1 border-b border-slate-200/80">
+                    <span class="text-slate-500 font-sans font-medium mb-1">Algorand Transaction ID:</span>
+                    <span class="text-indigo-700 font-bold break-all select-all">{{ blockchain_receipt.tx_id }}</span>
+                </div>
+                <div class="flex justify-between py-1">
+                    <span class="text-slate-500 font-sans font-medium">Ledger Confirmation Round:</span>
+                    <span class="text-emerald-700 font-bold">Block #{{ blockchain_receipt.confirmation_round }}</span>
+                </div>
+            </div>
+
+            <div class="p-3.5 bg-emerald-50 rounded-xl border border-emerald-200 text-xs text-emerald-900">
+                <strong>Confidentiality Guarantee:</strong> Raw medical data and clinical diagnostic notes are encrypted off-chain. The Data Encryption Key (DEK) is wrapped under the key service and is omitted from public Algorand transaction logs.
+            </div>
+
+            <div class="flex items-center justify-between pt-2">
+                <a href="{% url 'upload_record' %}" class="text-xs font-semibold text-teal-600 hover:text-teal-800">
+                    &larr; Upload Another Record
+                </a>
+                <a href="{% url 'record_detail' recent_record.record_id %}" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-teal-600 hover:bg-teal-700 shadow-sm transition">
+                    Inspect in Authorised Viewer &rarr;
+                </a>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Upload Form -->
+    <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
+        <form method="post" action="{% url 'upload_record' %}" enctype="multipart/form-data" class="space-y-6">
+            {% csrf_token %}
+
+            <div>
+                <label for="patient_id" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Target Patient Identity</label>
+                <select id="patient_id" name="patient_id" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm bg-white">
+                    {% for patient in patients %}
+                        <option value="{{ patient.id }}">{{ patient.user.get_full_name|default:patient.user.username }} (Code: {{ patient.patient_code }})</option>
+                    {% endfor %}
+                </select>
+                <span class="text-[11px] text-slate-500">Only verified patients registered within the institutional node can be assigned records.</span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label for="title" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Record Document Title</label>
+                    <input type="text" id="title" name="title" required
+                           class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500"
+                           placeholder="e.g. Comprehensive Metabolic Panel (CMP)">
+                </div>
+                <div>
+                    <label for="category" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Clinical Category</label>
+                    <select id="category" name="category" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm bg-white">
+                        <option value="clinical_summary">Clinical Summary & Examination</option>
+                        <option value="laboratory">Laboratory & Pathology Report</option>
+                        <option value="radiology">Radiology & Medical Imaging</option>
+                        <option value="prescription">Prescription & Pharmacy Order</option>
+                        <option value="discharge">Inpatient Discharge Summary</option>
+                        <option value="vaccination">Immunisation & Vaccination Record</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label for="record_date" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Clinical Observation Date</label>
+                    <input type="date" id="record_date" name="record_date" required
+                           class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm bg-white">
+                </div>
+                <div>
+                    <label for="diagnosis_code" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Opaque Category / ICD Code (Optional)</label>
+                    <input type="text" id="diagnosis_code" name="diagnosis_code"
+                           class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm"
+                           placeholder="e.g. E11.9 (Type 2 Diabetes Mellitus)">
+                </div>
+            </div>
+
+            <div>
+                <label for="clinical_notes" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Structured Clinical Observations & Findings</label>
+                <textarea id="clinical_notes" name="clinical_notes" rows="4" required
+                          class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500"
+                          placeholder="Enter complete clinical observations, diagnostic findings, vital signs, or treatment protocols. This payload will be encrypted with AES-256-GCM before storage."></textarea>
+            </div>
+
+            <div>
+                <label for="medical_file" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Clinical File Attachment (Optional PDF/DICOM/JSON)</label>
+                <div class="border-2 border-dashed border-slate-300 rounded-2xl p-6 text-center hover:border-teal-500 transition bg-slate-50/50">
+                    <svg class="w-8 h-8 text-slate-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                    <input type="file" id="medical_file" name="medical_file" class="text-xs text-slate-600">
+                    <p class="text-[11px] text-slate-400 mt-1">Attachments will be encapsulated inside the AES-GCM encrypted package before IPFS pinning</p>
+                </div>
+            </div>
+
+            <button type="submit" class="w-full py-3.5 px-4 rounded-xl text-white font-bold text-sm bg-teal-600 hover:bg-teal-700 shadow-sm transition">
+                Encrypt & Anchor to Algorand Blockchain
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

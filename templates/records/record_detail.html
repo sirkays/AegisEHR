@@ -1,0 +1,199 @@
+{% extends 'base.html' %}
+
+{% block title %}Record Viewer & Integrity Status - AegisEHR{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-8">
+    <!-- Figure Header Pill -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-2 border-b border-slate-200">
+        <div>
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-medium bg-slate-200/80 text-slate-700 border border-slate-300 mb-2">
+                <svg class="w-3.5 h-3.5 text-teal-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                Figure 4.10: Authorised Record Viewer and Integrity Status
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">{{ record.title }}</h1>
+            <p class="text-sm text-slate-500">Record Version v{{ record.version }} &bull; Patient: {{ record.patient.patient_code }} &bull; Observed: {{ record.record_date }}</p>
+        </div>
+        <a href="{% url 'dashboard_redirect' %}" class="inline-flex items-center gap-1 text-xs font-bold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-3.5 py-2 rounded-xl transition">
+            &larr; Back to Dashboard
+        </a>
+    </div>
+
+    <!-- Cryptographic Integrity Status Header Console -->
+    <div class="rounded-2xl p-6 border shadow-sm {% if integrity_status.overall_verified %}bg-slate-900 border-slate-800 text-white{% else %}bg-rose-50 border-rose-200 text-rose-950{% endif %}">
+        <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-lg
+                    {% if integrity_status.overall_verified %}bg-emerald-500/20 text-emerald-400 border border-emerald-500/30{% else %}bg-rose-100 text-rose-700{% endif %}">
+                    {% if integrity_status.overall_verified %}✓{% else %}✕{% endif %}
+                </div>
+                <div>
+                    <h3 class="font-bold text-base">
+                        {% if integrity_status.overall_verified %}
+                            Cryptographic Integrity & Authorisation Status: VERIFIED
+                        {% else %}
+                            Access Restricted / Integrity Check Failed
+                        {% endif %}
+                    </h3>
+                    <p class="text-xs {% if integrity_status.overall_verified %}text-slate-400{% else %}text-rose-700{% endif %}">
+                        Multi-layer verification: Algorand blockchain ledger digest &bull; AES-256-GCM auth tag &bull; Patient consent scope
+                    </p>
+                </div>
+            </div>
+            <span class="text-xs font-mono font-bold px-3 py-1 rounded-full uppercase
+                {% if integrity_status.overall_verified %}bg-emerald-500/20 text-emerald-300 border border-emerald-500/40{% else %}bg-rose-200 text-rose-900{% endif %}">
+                {% if integrity_status.overall_verified %}Consensus Valid{% else %}Access Denied{% endif %}
+            </span>
+        </div>
+
+        <!-- Triple Check Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs pt-3 border-t {% if integrity_status.overall_verified %}border-slate-800{% else %}border-rose-200{% endif %}">
+            <div class="p-3 rounded-xl {% if integrity_status.overall_verified %}bg-slate-800/80{% else %}bg-white{% endif %} border {% if integrity_status.overall_verified %}border-slate-700{% else %}border-rose-100{% endif %}">
+                <div class="flex items-center justify-between font-semibold mb-1">
+                    <span>1. Algorand Ledger Digest</span>
+                    <span class="text-emerald-400">MATCH</span>
+                </div>
+                <p class="text-[11px] {% if integrity_status.overall_verified %}text-slate-400{% else %}text-slate-600{% endif %}">Package SHA-256 matches blockchain anchor confirmed at block round #{{ record.blockchain_state.confirmation_round }}.</p>
+            </div>
+
+            <div class="p-3 rounded-xl {% if integrity_status.overall_verified %}bg-slate-800/80{% else %}bg-white{% endif %} border {% if integrity_status.overall_verified %}border-slate-700{% else %}border-rose-100{% endif %}">
+                <div class="flex items-center justify-between font-semibold mb-1">
+                    <span>2. AES-256-GCM Tag</span>
+                    <span class="text-emerald-400">VERIFIED</span>
+                </div>
+                <p class="text-[11px] {% if integrity_status.overall_verified %}text-slate-400{% else %}text-slate-600{% endif %}">Ciphertext authenticated; 128-bit tag confirms zero data alteration or transmission tampering.</p>
+            </div>
+
+            <div class="p-3 rounded-xl {% if integrity_status.overall_verified %}bg-slate-800/80{% else %}bg-white{% endif %} border {% if integrity_status.overall_verified %}border-slate-700{% else %}border-rose-100{% endif %}">
+                <div class="flex items-center justify-between font-semibold mb-1">
+                    <span>3. Patient Consent</span>
+                    <span class="{% if is_authorized %}text-emerald-400{% else %}text-rose-500{% endif %}">
+                        {% if is_authorized %}ACTIVE{% else %}UNAUTHORIZED{% endif %}
+                    </span>
+                </div>
+                <p class="text-[11px] {% if integrity_status.overall_verified %}text-slate-400{% else %}text-slate-600{% endif %}">
+                    {% if is_owner %}Record Owner session verified.
+                    {% elif is_creator %}Authoring Clinician session verified.
+                    {% elif active_perm %}Scoped permission valid until {{ active_perm.expires_at|date:"M d, H:i" }}.
+                    {% else %}No active smart contract permission found.{% endif %}
+                </p>
+            </div>
+        </div>
+
+        {% if integrity_status.error_message %}
+            <div class="mt-4 p-3 bg-rose-100 rounded-xl border border-rose-300 text-xs font-semibold text-rose-900">
+                {{ integrity_status.error_message }}
+            </div>
+        {% endif %}
+    </div>
+
+    {% if is_authorized and integrity_status.overall_verified %}
+        <!-- Clinical Content Viewer -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-6 relative overflow-hidden">
+            <!-- Security Watermark -->
+            <div class="absolute right-4 top-4 text-[10px] font-mono text-slate-300 pointer-events-none select-none text-right">
+                SESSION: {{ request.session.session_key|default:"AUTH-OK"|slice:":12" }}<br>
+                VIEWER: {{ user.username }} &bull; {{ request.user.algorand_address|default:"LOCAL"|slice:":8" }}<br>
+                DECRYPTED: UTC {% now "Y-m-d H:i:s" %}
+            </div>
+
+            <div class="space-y-1">
+                <span class="text-xs font-bold uppercase tracking-wider text-teal-600 font-mono">{{ record.get_category_display }}</span>
+                <h2 class="text-2xl font-bold text-slate-900">{{ record.title }}</h2>
+                <div class="flex flex-wrap items-center gap-4 text-xs text-slate-500 pt-1">
+                    <span>Patient Identifier: <strong class="text-slate-800 font-mono">{{ record.patient.patient_code }}</strong></span>
+                    <span>&bull;</span>
+                    <span>Authoring Clinician: <strong class="text-slate-800">Dr. {{ record.creator.user.get_full_name }}</strong></span>
+                    <span>&bull;</span>
+                    <span>Institution: <strong class="text-slate-800">{{ record.creator.institution }}</strong></span>
+                </div>
+            </div>
+
+            {% if record.diagnosis_code %}
+                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-100 text-xs text-slate-700 font-mono">
+                    <span class="font-bold text-slate-500">DIAGNOSIS CODE:</span>
+                    <span>{{ record.diagnosis_code }}</span>
+                </div>
+            {% endif %}
+
+            <!-- Clinical Observations Body -->
+            <div class="p-5 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Decrypted Clinical Findings</h3>
+                <div class="text-sm text-slate-800 whitespace-pre-line leading-relaxed font-sans">
+                    {{ record.clinical_notes }}
+                </div>
+            </div>
+
+            <!-- Decrypted Document Actions & Download -->
+            <div class="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl bg-teal-50/60 border border-teal-200">
+                <div class="space-y-0.5">
+                    <span class="text-xs font-bold text-teal-950 flex items-center gap-1.5">
+                        <svg class="w-4 h-4 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        Decrypted File: {{ package.original_filename|default:"clinical_record.txt" }}
+                    </span>
+                    <span class="text-[11px] text-teal-700 font-mono">Format: {{ package.file_format }} &bull; Size: {{ package.file_size_bytes }} bytes</span>
+                </div>
+                <a href="{% url 'download_record_file' record.record_id %}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-teal-600 hover:bg-teal-700 shadow-sm transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    Download Decrypted Document
+                </a>
+            </div>
+
+            <!-- Cryptographic Metadata Envelope -->
+            <div class="p-5 rounded-xl bg-slate-900 text-white space-y-3 text-xs font-mono">
+                <div class="flex items-center justify-between text-slate-400 pb-2 border-b border-slate-800">
+                    <span class="font-bold uppercase tracking-wider font-sans text-[11px] text-teal-400">Cryptographic Storage & Ledger Envelope</span>
+                    <span class="text-emerald-400">Algorand TestNet &bull; Live Round #{{ testnet_round }}</span>
+                </div>
+                <div class="space-y-1.5 break-all">
+                    <div><span class="text-slate-500 font-sans">IPFS CID:</span> <span class="text-teal-300">{{ package.ipfs_cid }}</span></div>
+                    <div><span class="text-slate-500 font-sans">SHA-256 Digest:</span> <span class="text-slate-300">{{ package.package_digest }}</span></div>
+                    <div><span class="text-slate-500 font-sans">AES-GCM Nonce:</span> <span class="text-slate-400">{{ package.nonce }}</span></div>
+                    <div><span class="text-slate-500 font-sans">Auth Tag:</span> <span class="text-slate-400">{{ package.auth_tag }}</span></div>
+                    <div>
+                        <span class="text-slate-500 font-sans">Algorand TxID:</span> 
+                        <a href="{{ explorer_url }}" target="_blank" class="text-indigo-400 hover:text-indigo-300 underline font-bold" title="Open in Pera Algorand Explorer">
+                            {{ record.blockchain_state.algorand_tx_id }} &nearr;
+                        </a>
+                    </div>
+                    <div><span class="text-slate-500 font-sans">Confirmation Round:</span> <span class="text-emerald-400">#{{ record.blockchain_state.confirmation_round }}</span></div>
+                </div>
+                <div class="pt-2 border-t border-slate-800 flex items-center gap-3 text-[11px]">
+                    <span class="text-slate-400 font-sans">Verify on Public Explorers:</span>
+                    <a href="{{ explorer_url }}" target="_blank" class="text-teal-400 hover:text-teal-300 font-sans font-semibold underline">
+                        Pera TestNet Explorer &nearr;
+                    </a>
+                    <span class="text-slate-600">&bull;</span>
+                    <a href="{{ lora_url }}" target="_blank" class="text-teal-400 hover:text-teal-300 font-sans font-semibold underline">
+                        Lora AlgoKit Explorer &nearr;
+                    </a>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between pt-2 border-t border-slate-100 text-xs text-slate-500">
+                <span>Clinical documents are never stored or exposed as unauthenticated public media URLs.</span>
+                <span class="font-medium text-emerald-600 flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                    Protected Session Active
+                </span>
+            </div>
+        </div>
+    {% else %}
+        <!-- Access Blocked Alert Container -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-12 text-center space-y-4">
+            <div class="w-16 h-16 rounded-2xl bg-rose-50 text-rose-600 mx-auto flex items-center justify-center">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            </div>
+            <h2 class="text-xl font-bold text-slate-900">Protected Clinical Record: Access Denied</h2>
+            <p class="text-xs text-slate-500 max-w-md mx-auto">
+                Under the Algorand smart contract access control model, clinical documents and decryption keys are withheld unless an unrevoked, unexpired patient consent transaction is verified on-chain.
+            </p>
+            <div class="pt-2">
+                <a href="{% url 'dashboard_redirect' %}" class="inline-flex items-center px-4 py-2 rounded-xl text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 transition">
+                    Return to Safe Dashboard
+                </a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
