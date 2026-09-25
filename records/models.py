@@ -48,6 +48,7 @@ class EncryptedPackage(models.Model):
     original_filename = models.CharField(max_length=255, default='clinical_record.txt')
     file_size_bytes = models.PositiveIntegerField(default=0)
     encrypted_file = models.FileField(upload_to='encrypted_packages/', blank=True, null=True)
+    ciphertext_b64 = models.TextField(blank=True, null=True, help_text="Base64-encoded package bytes for resilient cloud storage")
     stored_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

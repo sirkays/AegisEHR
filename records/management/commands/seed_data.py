@@ -214,12 +214,14 @@ class Command(BaseCommand):
             )
 
             # Encrypt and package
+            crypto_result = CryptoService.encrypt_medical_document(
+                plaintext_bytes=rdata['notes'].encode('utf-8'),
+                record_id_str=str(rec.record_id),
+                version_int=rec.version
+            )
+            pkg_b64 = base64.b64encode(crypto_result['package_bytes']).decode('utf-8')
+
             if not hasattr(rec, 'encrypted_package'):
-                crypto_result = CryptoService.encrypt_medical_document(
-                    plaintext_bytes=rdata['notes'].encode('utf-8'),
-                    record_id_str=str(rec.record_id),
-                    version_int=rec.version
-                )
                 pkg = EncryptedPackage.objects.create(
                     record=rec,
                     ipfs_cid=crypto_result['ipfs_cid'],
@@ -227,9 +229,17 @@ class Command(BaseCommand):
                     nonce=crypto_result['nonce_hex'],
                     auth_tag=crypto_result['auth_tag_hex'],
                     wrapped_key=crypto_result['wrapped_key'],
+                    ciphertext_b64=pkg_b64,
                     file_format='text/plain',
                     file_size_bytes=crypto_result['size_bytes']
                 )
+            elif not rec.encrypted_package.ciphertext_b64:
+                rec.encrypted_package.ciphertext_b64 = pkg_b64
+                rec.encrypted_package.wrapped_key = crypto_result['wrapped_key']
+                rec.encrypted_package.nonce = crypto_result['nonce_hex']
+                rec.encrypted_package.auth_tag = crypto_result['auth_tag_hex']
+                rec.encrypted_package.package_digest = crypto_result['package_digest']
+                rec.encrypted_package.save()
 
                 # Commit to simulated Algorand ledger
                 chain_receipt = AlgorandService.register_record_on_chain(

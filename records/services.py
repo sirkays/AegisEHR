@@ -2,11 +2,18 @@ import os
 import hashlib
 import base64
 import json
+from django.conf import settings
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 
-# System Master Key-Encryption-Key (KEK) for wrapping record keys
-# In enterprise production, this resides in a Hardware Security Module (HSM) or HashiCorp Vault.
-_MASTER_KEK = AESGCM.generate_key(bit_length=256)
+def get_master_kek():
+    """
+    Derives a consistent 256-bit Key-Encryption-Key (KEK).
+    Ensures all Gunicorn workers and background CLI processes consistently
+    unwrap record keys across restarts and cloud instances.
+    """
+    secret = getattr(settings, 'SECRET_KEY', 'default-aegis-secret-kek-key')
+    salt = getattr(settings, 'MASTER_KEK_SALT', 'AEGIS_EHR_MASTER_KEY_ENCRYPTION_KEY_2026')
+    return hashlib.sha256(f"{salt}:{secret}".encode('utf-8')).digest()
 
 class CryptoService:
     @staticmethod
@@ -17,7 +24,7 @@ class CryptoService:
     @staticmethod
     def wrap_key(dek_bytes):
         """Wraps (encrypts) the DEK using the master Key-Encryption-Key (KEK)."""
-        aesgcm = AESGCM(_MASTER_KEK)
+        aesgcm = AESGCM(get_master_kek())
         nonce = os.urandom(12)
         wrapped = aesgcm.encrypt(nonce, dek_bytes, b"KEY_WRAP_AAD")
         return base64.b64encode(nonce + wrapped).decode('utf-8')
@@ -28,18 +35,18 @@ class CryptoService:
         raw = base64.b64decode(wrapped_key_b64.encode('utf-8'))
         nonce = raw[:12]
         wrapped = raw[12:]
-        aesgcm = AESGCM(_MASTER_KEK)
+        aesgcm = AESGCM(get_master_kek())
         return aesgcm.decrypt(nonce, wrapped, b"KEY_WRAP_AAD")
 
     @classmethod
-    def encrypt_medical_document(cls, plaintext_bytes, record_id_str, version_int):
+    def encrypt_medical_document(cls, plaintext_bytes, record_id_str, version_int, existing_dek=None, existing_nonce=None):
         """
         Encrypts plaintext medical data with AES-256-GCM.
         Returns:
             ciphertext_bytes, nonce_hex, auth_tag_hex, wrapped_key_str, package_digest_hex, simulated_cid
         """
-        dek = cls.generate_record_key()
-        nonce = os.urandom(12)  # 96-bit fresh nonce
+        dek = existing_dek if existing_dek else cls.generate_record_key()
+        nonce = existing_nonce if existing_nonce else os.urandom(12)  # 96-bit fresh nonce
         aesgcm = AESGCM(dek)
         
         # Authenticated Associated Data (AAD) binds record ID and version to prevent replay
