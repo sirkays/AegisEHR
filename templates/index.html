@@ -5,7 +5,7 @@
 {% block content %}
 <div class="space-y-12">
     <!-- Hero Section -->
-    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-teal-950 to-slate-900 text-white p-8 sm:p-12 shadow-xl border border-slate-800">
+    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-teal-950 to-slate-900 text-white p-6 sm:p-12 shadow-xl border border-slate-800">
         <div class="relative z-10 max-w-3xl space-y-6">
             <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-teal-500/20 text-teal-300 border border-teal-500/30">
                 <span class="w-2 h-2 rounded-full bg-teal-400 animate-pulse"></span>
@@ -14,17 +14,17 @@
             <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight">
                 Decentralised, Patient-Controlled <span class="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-indigo-400">Electronic Health Records</span>
             </h1>
-            <p class="text-slate-300 text-base sm:text-lg leading-relaxed">
+            <p class="text-slate-300 text-sm sm:text-lg leading-relaxed">
                 A hybrid decentralised healthcare architecture uniting encrypted off-chain storage (AES-256-GCM on IPFS) with on-chain programmable consent and immutable audit logging on Algorand.
             </p>
-            <div class="flex flex-wrap gap-4 pt-2">
-                <a href="{% url 'register' %}" class="px-6 py-3 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-sm shadow-lg shadow-teal-500/25 transition">
+            <div class="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 pt-2">
+                <a href="{% url 'register' %}" class="px-6 py-3 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-sm shadow-lg shadow-teal-500/25 transition text-center justify-center">
                     Get Started (Register)
                 </a>
-                <a href="{% url 'login' %}" class="px-6 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-semibold text-sm border border-slate-700 transition">
+                <a href="{% url 'login' %}" class="px-6 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-semibold text-sm border border-slate-700 transition text-center justify-center">
                     Account Sign In
                 </a>
-                <a href="{% url 'audit_history' %}" class="px-6 py-3 rounded-xl bg-indigo-900/60 hover:bg-indigo-900 text-indigo-200 font-semibold text-sm border border-indigo-700/50 transition flex items-center gap-2">
+                <a href="{% url 'audit_history' %}" class="px-6 py-3 rounded-xl bg-indigo-900/60 hover:bg-indigo-900 text-indigo-200 font-semibold text-sm border border-indigo-700/50 transition flex items-center justify-center gap-2">
                     <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     Explore Audit Trail
                 </a>

@@ -14,45 +14,45 @@
             <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Patient Command Center</h1>
             <p class="text-sm text-slate-500">Welcome, {{ user.get_full_name|default:user.username }}. Sovereign patient control and consent governance.</p>
         </div>
-        <div class="flex items-center gap-3">
-            <a href="{% url 'consent_management' %}" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-semibold text-xs shadow-sm transition">
+        <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+            <a href="{% url 'consent_management' %}" class="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-semibold text-xs shadow-sm transition">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
                 Consent Management Center
             </a>
-            <a href="{% url 'audit_history' %}" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs border border-slate-200 shadow-sm transition">
+            <a href="{% url 'audit_history' %}" class="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs border border-slate-200 shadow-sm transition">
                 Audit History
             </a>
         </div>
     </div>
 
     <!-- Patient Identity Card -->
-    <div class="bg-gradient-to-r from-blue-900 to-indigo-900 rounded-2xl p-6 text-white shadow-md">
+    <div class="bg-gradient-to-r from-blue-900 to-indigo-900 rounded-2xl p-4 sm:p-6 text-white shadow-md">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div class="flex items-center space-x-4">
-                <div class="w-14 h-14 rounded-2xl bg-white/10 backdrop-blur border border-white/20 flex items-center justify-center text-2xl font-bold text-teal-300">
+            <div class="flex items-center space-x-3 sm:space-x-4">
+                <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white/10 backdrop-blur border border-white/20 flex items-center justify-center text-xl sm:text-2xl font-bold text-teal-300 shrink-0">
                     {{ user.first_name|first|default:"P" }}
                 </div>
-                <div>
-                    <div class="flex items-center gap-2">
-                        <h2 class="text-xl font-bold">{{ user.get_full_name|default:user.username }}</h2>
-                        <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">Verified Patient</span>
+                <div class="min-w-0">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <h2 class="text-lg sm:text-xl font-bold truncate">{{ user.get_full_name|default:user.username }}</h2>
+                        <span class="px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">Verified Patient</span>
                     </div>
-                    <div class="flex flex-wrap items-center gap-4 text-xs text-blue-200 mt-1">
+                    <div class="flex flex-wrap items-center gap-2 sm:gap-4 text-xs text-blue-200 mt-1">
                         <span>Patient Code: <strong class="text-white font-mono">{{ patient.patient_code }}</strong></span>
                         <span>Blood Group: <strong class="text-white">{{ patient.blood_group }}</strong></span>
                         <span>Gender: <strong class="text-white capitalize">{{ patient.gender }}</strong></span>
                     </div>
                 </div>
             </div>
-            <div class="bg-black/20 p-3 rounded-xl border border-white/10 space-y-1">
+            <div class="bg-black/20 p-3 rounded-xl border border-white/10 space-y-1 max-w-full">
                 <span class="block text-[10px] uppercase tracking-wider text-blue-300 font-bold">Algorand Wallet Address</span>
-                <span class="font-mono text-xs text-teal-300 select-all">{{ user.algorand_address|default:"No wallet connected" }}</span>
+                <span class="font-mono text-xs text-teal-300 select-all break-all block">{{ user.algorand_address|default:"No wallet connected" }}</span>
             </div>
         </div>
     </div>
 
     <!-- Summary KPI Metric Cards -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
             <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Owned Records</span>
             <div class="flex items-baseline justify-between mt-2">
@@ -142,18 +142,18 @@
 
     <!-- Owned Medical Records Table -->
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div class="p-6 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="p-4 sm:p-6 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-                <h3 class="text-lg font-bold text-slate-900">Your Electronic Health Records</h3>
+                <h3 class="text-base sm:text-lg font-bold text-slate-900">Your Electronic Health Records</h3>
                 <p class="text-xs text-slate-500">Every record is individually encrypted with AES-256-GCM and registered on the Algorand ledger</p>
             </div>
-            <span class="text-xs font-semibold px-3 py-1 bg-slate-100 text-slate-600 rounded-full">
+            <span class="text-xs font-semibold px-3 py-1 bg-slate-100 text-slate-600 rounded-full self-start sm:self-auto">
                 {{ total_records_count }} Registered Records
             </span>
         </div>
 
         {% if records %}
-            <div class="overflow-x-auto">
+            <div class="overflow-x-auto w-full max-w-full table-container">
                 <table class="w-full text-left text-sm text-slate-600">
                     <thead class="bg-slate-50 text-xs uppercase font-semibold text-slate-500 border-b border-slate-200">
                         <tr>

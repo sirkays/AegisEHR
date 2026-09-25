@@ -43,117 +43,236 @@
     <style>
         body { font-family: 'Inter', sans-serif; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
+        html, body {
+            overflow-x: hidden;
+            max-width: 100vw;
+        }
+        /* Touch and table scroll smoothness */
+        .table-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            width: 100%;
+            max-width: 100%;
+        }
     </style>
     {% block extra_head %}{% endblock %}
 </head>
-<body class="h-full flex flex-col text-slate-800 antialiased selection:bg-teal-500 selection:text-white">
+<body class="min-h-full flex flex-col text-slate-800 antialiased selection:bg-teal-500 selection:text-white overflow-x-hidden max-w-full">
 
     <!-- Top Infrastructure Bar -->
-    <header class="bg-slate-900 text-slate-300 text-xs px-4 py-1.5 border-b border-slate-800">
-        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
-            <div class="flex items-center space-x-3">
-                <span class="flex items-center gap-1.5 font-medium">
+    <header class="bg-slate-950 text-slate-300 text-[11px] px-3 sm:px-6 py-1.5 border-b border-slate-800">
+        <div class="max-w-7xl mx-auto flex items-center justify-between gap-2">
+            <div class="flex items-center space-x-2 sm:space-x-3 truncate">
+                <span class="inline-flex items-center gap-1.5 font-medium text-slate-200 shrink-0">
                     <span class="relative flex h-2 w-2">
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                         <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                     </span>
-                    Algorand Network: <strong class="text-emerald-400 uppercase tracking-wide">TestNet</strong>
+                    <span>Algorand <strong class="text-emerald-400 uppercase tracking-wide">TestNet</strong></span>
                 </span>
-                <span class="hidden md:inline text-slate-600">|</span>
-                <span class="hidden md:inline text-slate-400">Smart Contract App ID: <span class="font-mono text-slate-200">100200300</span></span>
-                <span class="hidden md:inline text-slate-600">|</span>
-                <span class="hidden md:inline text-slate-400">Consensus: <span class="text-slate-200">Pure Proof-of-Stake</span></span>
+                <span class="text-slate-700 hidden sm:inline">&bull;</span>
+                <span class="text-slate-400 hidden sm:inline truncate">Contract: <span class="font-mono text-slate-300">#100200300</span></span>
+                <span class="text-slate-700 hidden md:inline">&bull;</span>
+                <span class="text-slate-400 hidden md:inline">Pure Proof-of-Stake</span>
             </div>
-            <div class="flex items-center space-x-4">
-                <span class="flex items-center gap-1 text-slate-400">
-                    <svg class="w-3.5 h-3.5 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-                    AES-256-GCM + IPFS Encrypted
+            <div class="flex items-center space-x-3 text-slate-400 shrink-0">
+                <span class="hidden sm:inline-flex items-center gap-1 text-[10px] uppercase tracking-wider text-teal-400/90 font-semibold bg-teal-950/60 border border-teal-800/60 px-2 py-0.5 rounded">
+                    <svg class="w-3 h-3 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                    AES-256-GCM
                 </span>
-                <a href="{% url 'audit_history' %}" class="hover:text-white underline underline-offset-2 transition-colors">Ledger Audit Trail</a>
+                <a href="{% url 'audit_history' %}" class="hover:text-teal-300 transition-colors text-[11px] font-medium inline-flex items-center gap-1">
+                    <span>Audit Trail</span>
+                    <span class="text-xs">&rarr;</span>
+                </a>
             </div>
         </div>
     </header>
 
-    <!-- Main Navigation -->
-    <nav class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm/50">
+    <!-- Main Navigation Bar -->
+    <nav class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center space-x-8">
-                    <!-- Logo -->
-                    <a href="{% url 'home' %}" class="flex items-center space-x-2.5">
-                        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-700 via-teal-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-teal-500/20">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            <div class="flex justify-between items-center h-16">
+                
+                <!-- Left: Brand Logo -->
+                <div class="flex items-center space-x-3 shrink-0">
+                    <a href="{% url 'home' %}" class="flex items-center space-x-2.5 group">
+                        <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-brand-700 via-teal-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-teal-500/20 group-hover:scale-105 transition-transform">
+                            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
                         </div>
                         <div>
-                            <span class="text-xl font-extrabold tracking-tight text-slate-900">Aegis<span class="text-brand-600">EHR</span></span>
-                            <span class="hidden sm:block text-[10px] uppercase tracking-wider font-semibold text-slate-400">Algorand Decentralised Healthcare</span>
+                            <div class="text-lg sm:text-xl font-black tracking-tight text-slate-900 leading-tight">
+                                Aegis<span class="text-brand-600">EHR</span>
+                            </div>
+                            <div class="hidden xl:block text-[9px] uppercase tracking-wider font-semibold text-slate-400">Algorand Healthcare</div>
                         </div>
                     </a>
-
-                    <!-- Portal Navigation Links -->
-                    {% if user.is_authenticated %}
-                        <div class="hidden md:flex items-center space-x-1">
-                            <a href="{% url 'dashboard_redirect' %}" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:text-brand-600 hover:bg-slate-50 transition">Dashboard</a>
-                            
-                            {% if user.is_patient_user %}
-                                <a href="{% url 'patient_dashboard' %}" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:text-brand-600 hover:bg-slate-50 transition">My Health Records</a>
-                                <a href="{% url 'consent_management' %}" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:text-brand-600 hover:bg-slate-50 transition flex items-center gap-1.5">
-                                    Consent Center
-                                    <span class="bg-teal-100 text-teal-800 text-xs px-2 py-0.5 rounded-full font-semibold">Active</span>
-                                </a>
-                            {% elif user.is_provider_user %}
-                                <a href="{% url 'provider_dashboard' %}" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:text-brand-600 hover:bg-slate-50 transition">Clinical Workspace</a>
-                                <a href="{% url 'upload_record' %}" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:text-brand-600 hover:bg-slate-50 transition flex items-center gap-1">
-                                    <svg class="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                                    Upload & Anchor EHR
-                                </a>
-                            {% elif user.is_admin_user %}
-                                <a href="{% url 'admin_verification' %}" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:text-brand-600 hover:bg-slate-50 transition">Provider Verification</a>
-                            {% endif %}
-                            
-                            <a href="{% url 'audit_history' %}" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:text-brand-600 hover:bg-slate-50 transition">Audit Ledger</a>
-                        </div>
-                    {% endif %}
                 </div>
 
-                <!-- Right Side User & Wallet Controls -->
-                <div class="flex items-center space-x-3">
+                <!-- Center: Desktop Navigation Links (Large screens only) -->
+                {% if user.is_authenticated %}
+                    <div class="hidden lg:flex items-center space-x-1 xl:space-x-2">
+                        <a href="{% url 'dashboard_redirect' %}" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-slate-700 hover:text-brand-600 hover:bg-slate-100/80 transition">Dashboard</a>
+                        
+                        {% if user.is_patient_user %}
+                            <a href="{% url 'patient_dashboard' %}" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-slate-700 hover:text-brand-600 hover:bg-slate-100/80 transition">My Health Records</a>
+                            <a href="{% url 'consent_management' %}" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-slate-700 hover:text-brand-600 hover:bg-slate-100/80 transition inline-flex items-center gap-1.5">
+                                <span>Consent Center</span>
+                                <span class="bg-teal-100 text-teal-800 text-[10px] uppercase font-bold px-1.5 py-0.5 rounded-full">Active</span>
+                            </a>
+                        {% elif user.is_provider_user %}
+                            <a href="{% url 'provider_dashboard' %}" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-slate-700 hover:text-brand-600 hover:bg-slate-100/80 transition">Clinical Workspace</a>
+                            <a href="{% url 'upload_record' %}" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-slate-700 hover:text-brand-600 hover:bg-slate-100/80 transition inline-flex items-center gap-1">
+                                <svg class="w-3.5 h-3.5 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                <span>Upload EHR</span>
+                            </a>
+                        {% elif user.is_admin_user %}
+                            <a href="{% url 'admin_verification' %}" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-slate-700 hover:text-brand-600 hover:bg-slate-100/80 transition">Provider Verification</a>
+                        {% endif %}
+                        
+                        <a href="{% url 'audit_history' %}" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-slate-700 hover:text-brand-600 hover:bg-slate-100/80 transition">Audit Ledger</a>
+                    </div>
+                {% endif %}
+
+                <!-- Right Side: User Profile & Mobile Menu Button -->
+                <div class="flex items-center space-x-2 sm:space-x-3">
                     {% if user.is_authenticated %}
-                        <!-- Algorand Address Pill -->
+                        <!-- Desktop Algorand Address Pill -->
                         {% if user.algorand_address %}
-                            <div class="hidden lg:flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 border border-slate-300/80 px-2.5 py-1 rounded-full text-xs font-mono text-slate-700 transition" title="Algorand Public Address: {{ user.algorand_address }}">
-                                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                                <span class="font-semibold text-slate-500">ALGO:</span>
+                            <a href="https://testnet.explorer.perawallet.app/address/{{ user.algorand_address }}" target="_blank" rel="noopener noreferrer"
+                               class="hidden xl:inline-flex items-center gap-1.5 bg-slate-100 hover:bg-teal-50 hover:border-teal-200 border border-slate-200 px-2.5 py-1 rounded-full text-xs font-mono text-slate-700 transition"
+                               title="View on Algorand TestNet Explorer">
+                                <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+                                <span class="font-bold text-slate-400">ALGO:</span>
                                 <span>{{ user.algorand_address|slice:":6" }}...{{ user.algorand_address|slice:"-4:" }}</span>
-                            </div>
+                            </a>
                         {% endif %}
 
                         <!-- Role Badge -->
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold
-                            {% if user.is_patient_user %}bg-blue-100 text-blue-800
-                            {% elif user.is_provider_user %}bg-emerald-100 text-emerald-800
-                            {% else %}bg-purple-100 text-purple-800{% endif %}">
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider shrink-0
+                            {% if user.is_patient_user %}bg-blue-50 text-blue-700 border border-blue-200
+                            {% elif user.is_provider_user %}bg-emerald-50 text-emerald-700 border border-emerald-200
+                            {% else %}bg-purple-50 text-purple-700 border border-purple-200{% endif %}">
                             {% if user.is_patient_user %}Patient
-                            {% elif user.is_provider_user %}Practitioner
-                            {% else %}Admin Auditor{% endif %}
+                            {% elif user.is_provider_user %}Doctor
+                            {% else %}Admin{% endif %}
                         </span>
 
-                        <!-- User Profile Menu -->
-                        <div class="flex items-center space-x-2 pl-2 border-l border-slate-200">
-                            <span class="text-sm font-medium text-slate-800 hidden sm:inline">{{ user.get_full_name|default:user.username }}</span>
-                            <a href="{% url 'logout' %}" class="text-xs font-medium text-rose-600 hover:text-rose-800 bg-rose-50 hover:bg-rose-100 px-2.5 py-1.5 rounded-lg transition">
+                        <!-- Desktop User Name & Logout -->
+                        <div class="hidden lg:flex items-center space-x-2 pl-2 border-l border-slate-200">
+                            <span class="text-xs font-semibold text-slate-800 max-w-[120px] truncate" title="{{ user.get_full_name|default:user.username }}">
+                                {{ user.get_full_name|default:user.username }}
+                            </span>
+                            <a href="{% url 'logout' %}" class="text-xs font-semibold text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 px-2.5 py-1.5 rounded-lg transition">
                                 Logout
                             </a>
                         </div>
+
+                        <!-- Mobile Hamburger Button -->
+                        <button type="button" id="mobile-menu-btn"
+                                class="lg:hidden p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-500 transition"
+                                aria-label="Toggle Navigation Menu">
+                            <svg id="hamburger-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                            <svg id="close-icon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
                     {% else %}
-                        <a href="{% url 'login' %}" class="text-sm font-medium text-slate-700 hover:text-brand-600 px-3 py-2 rounded-lg transition">Sign In</a>
-                        <a href="{% url 'register' %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-semibold rounded-xl text-white bg-brand-600 hover:bg-brand-700 shadow-sm transition">
+                        <a href="{% url 'login' %}" class="text-xs sm:text-sm font-semibold text-slate-700 hover:text-brand-600 px-2.5 sm:px-3 py-1.5 rounded-lg transition">Sign In</a>
+                        <a href="{% url 'register' %}" class="inline-flex items-center px-3 sm:px-4 py-1.5 sm:py-2 border border-transparent text-xs sm:text-sm font-semibold rounded-xl text-white bg-brand-600 hover:bg-brand-700 shadow-sm transition">
                             Create Account
                         </a>
                     {% endif %}
                 </div>
             </div>
         </div>
+
+        <!-- Mobile Drawer Menu (Hidden by default, smooth slide down) -->
+        {% if user.is_authenticated %}
+            <div id="mobile-menu" class="hidden lg:hidden border-t border-slate-200 bg-white px-4 pt-3 pb-6 space-y-4 shadow-xl">
+                <!-- User Profile Header Card -->
+                <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2.5 min-w-0">
+                            <div class="w-8 h-8 rounded-full bg-teal-600 text-white font-bold flex items-center justify-center text-xs shrink-0">
+                                {{ user.first_name|first|default:user.username|first|upper }}
+                            </div>
+                            <div class="min-w-0">
+                                <div class="text-sm font-bold text-slate-900 truncate">{{ user.get_full_name|default:user.username }}</div>
+                                <div class="text-[11px] text-slate-500 font-mono truncate">{{ user.email }}</div>
+                            </div>
+                        </div>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider shrink-0 ml-2
+                            {% if user.is_patient_user %}bg-blue-100 text-blue-800
+                            {% elif user.is_provider_user %}bg-emerald-100 text-emerald-800
+                            {% else %}bg-purple-100 text-purple-800{% endif %}">
+                            {% if user.is_patient_user %}Patient
+                            {% elif user.is_provider_user %}Doctor
+                            {% else %}Admin{% endif %}
+                        </span>
+                    </div>
+
+                    {% if user.algorand_address %}
+                        <div class="pt-2 border-t border-slate-200/80 flex items-center justify-between text-xs">
+                            <div class="flex items-center space-x-1.5 truncate">
+                                <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+                                <span class="font-bold text-slate-500 text-[10px]">ALGO:</span>
+                                <span class="font-mono text-slate-700 text-[11px] truncate">{{ user.algorand_address|slice:":8" }}...{{ user.algorand_address|slice:"-6:" }}</span>
+                            </div>
+                            <a href="https://testnet.explorer.perawallet.app/address/{{ user.algorand_address }}" target="_blank" rel="noopener noreferrer" class="text-teal-600 hover:text-teal-800 text-[11px] font-semibold shrink-0 ml-2">
+                                Explorer &rarr;
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Navigation Links -->
+                <div class="space-y-1">
+                    <a href="{% url 'dashboard_redirect' %}" class="flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-800 hover:bg-teal-50 hover:text-teal-700 transition">
+                        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                        <span>Dashboard Home</span>
+                    </a>
+
+                    {% if user.is_patient_user %}
+                        <a href="{% url 'patient_dashboard' %}" class="flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-800 hover:bg-teal-50 hover:text-teal-700 transition">
+                            <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            <span>My Health Records</span>
+                        </a>
+                        <a href="{% url 'consent_management' %}" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-800 hover:bg-teal-50 hover:text-teal-700 transition">
+                            <div class="flex items-center space-x-3">
+                                <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                                <span>Consent Center</span>
+                            </div>
+                            <span class="bg-teal-100 text-teal-800 text-[10px] uppercase font-bold px-2 py-0.5 rounded-full">Active</span>
+                        </a>
+                    {% elif user.is_provider_user %}
+                        <a href="{% url 'provider_dashboard' %}" class="flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-800 hover:bg-teal-50 hover:text-teal-700 transition">
+                            <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                            <span>Clinical Workspace</span>
+                        </a>
+                        <a href="{% url 'upload_record' %}" class="flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-800 hover:bg-teal-50 hover:text-teal-700 transition">
+                            <svg class="w-5 h-5 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                            <span>Upload & Anchor EHR</span>
+                        </a>
+                    {% elif user.is_admin_user %}
+                        <a href="{% url 'admin_verification' %}" class="flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-800 hover:bg-teal-50 hover:text-teal-700 transition">
+                            <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                            <span>Provider Verification</span>
+                        </a>
+                    {% endif %}
+
+                    <a href="{% url 'audit_history' %}" class="flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-800 hover:bg-teal-50 hover:text-teal-700 transition">
+                        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+                        <span>Consensus Audit Ledger</span>
+                    </a>
+                </div>
+
+                <!-- Mobile Logout Action -->
+                <div class="pt-2 border-t border-slate-200">
+                    <a href="{% url 'logout' %}" class="flex items-center justify-center space-x-2 w-full py-2.5 px-4 rounded-xl text-sm font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                        <span>Sign Out of AegisEHR</span>
+                    </a>
+                </div>
+            </div>
+        {% endif %}
     </nav>
 
     <!-- Toast Notifications / Flash Messages -->
@@ -190,24 +309,70 @@
     <!-- Footer -->
     <footer class="bg-white border-t border-slate-200 mt-auto py-8">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-                <div class="flex items-center space-x-2">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500 text-center md:text-left">
+                <div class="flex flex-wrap items-center justify-center md:justify-start gap-y-1 gap-x-2">
                     <span class="font-bold text-slate-700">AegisEHR Architecture</span>
-                    <span>•</span>
+                    <span class="hidden sm:inline">&bull;</span>
                     <span>Algorand Smart Contract Layer</span>
-                    <span>•</span>
+                    <span class="hidden sm:inline">&bull;</span>
                     <span>IPFS Content Addressing</span>
-                    <span>•</span>
+                    <span class="hidden sm:inline">&bull;</span>
                     <span>AES-256-GCM Cryptographic Envelope</span>
                 </div>
-                <div class="flex items-center space-x-4">
+                <div class="flex flex-wrap items-center justify-center md:justify-end gap-x-4 gap-y-2">
                     <span>Dissertation Chapters 1–5 Implementation</span>
-                    <a href="{% url 'home' %}" class="hover:text-brand-600">Home</a>
-                    <a href="{% url 'audit_history' %}" class="hover:text-brand-600">Verification Ledger</a>
+                    <a href="{% url 'home' %}" class="hover:text-brand-600 font-medium">Home</a>
+                    <a href="{% url 'audit_history' %}" class="hover:text-brand-600 font-medium">Verification Ledger</a>
                 </div>
             </div>
         </div>
     </footer>
+
+    <!-- Mobile Menu Drawer Toggle Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const menuBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const hamburgerIcon = document.getElementById('hamburger-icon');
+            const closeIcon = document.getElementById('close-icon');
+
+            if (menuBtn && mobileMenu) {
+                menuBtn.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    const isHidden = mobileMenu.classList.contains('hidden');
+                    if (isHidden) {
+                        mobileMenu.classList.remove('hidden');
+                        if (hamburgerIcon) hamburgerIcon.classList.add('hidden');
+                        if (closeIcon) closeIcon.classList.remove('hidden');
+                    } else {
+                        mobileMenu.classList.add('hidden');
+                        if (hamburgerIcon) hamburgerIcon.classList.remove('hidden');
+                        if (closeIcon) closeIcon.classList.add('hidden');
+                    }
+                });
+
+                // Close on click outside
+                document.addEventListener('click', function (e) {
+                    if (!mobileMenu.contains(e.target) && !menuBtn.contains(e.target)) {
+                        if (!mobileMenu.classList.contains('hidden')) {
+                            mobileMenu.classList.add('hidden');
+                            if (hamburgerIcon) hamburgerIcon.classList.remove('hidden');
+                            if (closeIcon) closeIcon.classList.add('hidden');
+                        }
+                    }
+                });
+
+                // Close on Escape key
+                document.addEventListener('keydown', function (e) {
+                    if (e.key === 'Escape' && !mobileMenu.classList.contains('hidden')) {
+                        mobileMenu.classList.add('hidden');
+                        if (hamburgerIcon) hamburgerIcon.classList.remove('hidden');
+                        if (closeIcon) closeIcon.classList.add('hidden');
+                    }
+                });
+            }
+        });
+    </script>
 
     {% block extra_js %}{% endblock %}
 </body>
