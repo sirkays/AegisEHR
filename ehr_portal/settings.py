@@ -175,8 +175,9 @@ LOGOUT_REDIRECT_URL = 'login'
 
 # Algorand & Decentralized Storage Settings
 ALGORAND_NETWORK = 'testnet'
-ALGORAND_ALGOD_ADDRESS = 'https://testnet-api.algonode.cloud'
-ALGORAND_INDEXER_ADDRESS = 'https://testnet-idx.algonode.cloud'
-ALGORAND_APP_ID = 100200300
+ALGORAND_ALGOD_ADDRESS = os.getenv('ALGORAND_ALGOD_ADDRESS', 'https://testnet-api.algonode.cloud')
+ALGORAND_INDEXER_ADDRESS = os.getenv('ALGORAND_INDEXER_ADDRESS', 'https://testnet-idx.algonode.cloud')
+ALGORAND_APP_ID = int(os.getenv('ALGORAND_APP_ID', '100200300'))
+ALGORAND_RELAYER_MNEMONIC = os.getenv('ALGORAND_RELAYER_MNEMONIC', '')
 IPFS_GATEWAY_URL = 'https://ipfs.io/ipfs/'
 
